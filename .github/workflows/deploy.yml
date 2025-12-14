@@ -97,7 +97,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             rm -rf /var/www/html/o4u/src
-            mv /var/www/html/o4u/os4u /var/www/html/o4u/src
+            mv /var/www/html/o4u/o4u /var/www/html/o4u/src
             cd /var/www/html/o4u/src
             rm -rf /var/www/html/o4u/src/storage/logs
             ln -s /var/www/html/o4u/logs/ /var/www/html/o4u/src/storage/
@@ -105,4 +105,7 @@ jobs:
             php8.4 artisan optimize:clear
             php8.4 artisan optimize
             chown -R www-data:www-data /var/www/html/o4u/src
-            supervisorctl restart "o4u-worker:*"
+            cp -f /var/www/html/o4u/deploy/supervisor/o4u-queue-worker.conf /etc/supervisor/conf.d/o4u-queue-worker.conf
+            supervisorctl reread
+            supervisorctl update
+            supervisorctl restart "o4u-queue-worker:*"
