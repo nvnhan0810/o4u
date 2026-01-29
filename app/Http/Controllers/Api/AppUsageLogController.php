@@ -102,9 +102,24 @@ class AppUsageLogController extends Controller
             'ip_address' => $ipAddress,
         ]);
 
+        $clientSystem->load('client:id,name,uuid');
+
         return response()->json([
             'success' => true,
             'message' => 'Logged successfully.',
+            'client_system' => [
+                'id' => $clientSystem->id,
+                'name' => $clientSystem->name,
+                'uuid' => $clientSystem->uuid,
+                'endpoint' => $clientSystem->endpoint,
+                'db_name' => $clientSystem->db_name,
+                'status' => $clientSystem->status,
+                'client' => $clientSystem->client ? [
+                    'id' => $clientSystem->client->id,
+                    'name' => $clientSystem->client->name,
+                    'uuid' => $clientSystem->client->uuid,
+                ] : null,
+            ],
         ]);
     }
 }
