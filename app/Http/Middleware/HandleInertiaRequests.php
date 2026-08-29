@@ -2,6 +2,8 @@
 
 namespace App\Http\Middleware;
 
+use App\Domain\Marketing\ContactInfo;
+use App\Domain\Marketing\ErpSaasProduct;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -48,6 +50,18 @@ class HandleInertiaRequests extends Middleware
             'flash' => [
                 'error' => $request->session()->get('error'),
                 'success' => $request->session()->get('success'),
+            ],
+            'products' => [
+                ErpSaasProduct::toArray(),
+            ],
+            'contact' => [
+                'email' => ContactInfo::EMAIL,
+                'emailHref' => ContactInfo::EMAIL_HREF,
+                'phone' => ContactInfo::PHONE,
+                'phoneHref' => ContactInfo::PHONE_HREF,
+                'zaloHref' => ContactInfo::ZALO_HREF,
+                'zaloQrUrl' => ContactInfo::ZALO_QR_PATH,
+                'zaloDisplayName' => ContactInfo::ZALO_DISPLAY_NAME,
             ],
         ];
     }

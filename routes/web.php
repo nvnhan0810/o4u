@@ -1,5 +1,6 @@
 <?php
 
+use App\Domain\Marketing\ErpSaasProduct;
 use App\Http\Controllers\AppController;
 use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\Web\AppUsageController;
@@ -9,6 +10,7 @@ use Illuminate\Support\Facades\Route;
 
 // Public routes
 Route::inertia('/', 'Welcome')->name('welcome');
+Route::inertia(ErpSaasProduct::PATH, 'ErpSaas')->name('erp-saas');
 
 Route::middleware('guest')->group(function () {
     Route::inertia('/login', 'Auth/Login')->name('login');
