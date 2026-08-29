@@ -1,5 +1,5 @@
 <template>
-    <v-app>
+    <v-app :class="{ 'landing-app--erp-saas': isProductLanding }">
         <v-app-bar
             :elevation="scrolled ? 4 : 0"
             :class="['landing-app-bar', { 'landing-app-bar--scrolled': scrolled }]"
@@ -82,6 +82,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { router, usePage } from '@inertiajs/vue3';
+import { parseProductLinks } from '@/domain/marketing/product-link';
 
 interface PageProps extends Record<string, unknown> {
     auth?: {
@@ -92,19 +93,37 @@ interface PageProps extends Record<string, unknown> {
             avatar: string | null;
         } | null;
     };
+    products?: unknown;
 }
 
 const page = usePage<PageProps>();
 const user = computed(() => page.props.auth?.user || null);
+const products = computed(() => parseProductLinks(page.props.products));
+const currentPath = computed(() => page.url.split('?')[0] ?? '/');
+const isProductLanding = computed(() =>
+    products.value.some((product) => product.url === currentPath.value),
+);
 const currentYear = new Date().getFullYear();
 const scrolled = ref(false);
 
-const navItems = [
+const homeNavItems = [
     { label: 'Dịch vụ', href: '#services' },
     { label: 'Quy trình', href: '#process' },
+    { label: 'Sản phẩm', href: '#products' },
     { label: 'Về chúng tôi', href: '#about' },
     { label: 'Liên hệ', href: '#contact' },
 ];
+
+const productNavItems = [
+    { label: 'Tính năng', href: '#features' },
+    { label: 'Module', href: '#modules' },
+    { label: 'Luồng vận hành', href: '#workflow' },
+    { label: 'Liên hệ', href: '#contact' },
+];
+
+const navItems = computed(() =>
+    isProductLanding.value ? productNavItems : homeNavItems,
+);
 
 const onScroll = () => {
     scrolled.value = window.scrollY > 24;
@@ -168,5 +187,40 @@ onUnmounted(() => {
 
 .landing-footer .text-medium-emphasis {
     color: rgba(255, 255, 255, 0.78) !important;
+}
+
+.landing-app--erp-saas .landing-main {
+    background: #f0fdfa;
+}
+
+.landing-app--erp-saas .landing-app-bar--scrolled {
+    border-bottom-color: rgba(13, 148, 136, 0.16);
+}
+
+.landing-app--erp-saas .landing-nav-link:hover {
+    color: #0f766e;
+}
+
+.landing-app--erp-saas .landing-footer {
+    background: #115e59 !important;
+}
+
+.landing-app--erp-saas :deep(.v-avatar.bg-primary),
+.landing-app--erp-saas :deep(.bg-primary) {
+    background-color: #0f766e !important;
+}
+
+.landing-app--erp-saas :deep(.text-primary) {
+    color: #0f766e !important;
+}
+
+.landing-app--erp-saas :deep(.v-btn--variant-outlined) {
+    color: #0f766e;
+    border-color: #0f766e;
+}
+
+.landing-app--erp-saas :deep(.v-btn--variant-flat.bg-primary),
+.landing-app--erp-saas :deep(.v-btn.bg-primary) {
+    background-color: #0f766e !important;
 }
 </style>

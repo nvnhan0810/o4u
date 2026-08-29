@@ -22,6 +22,8 @@ declare module '@inertiajs/core' {
             error?: string | null;
             success?: string | null;
         };
-        [key: string]: any;
+        products?: unknown;
+        contact?: unknown;
+        [key: string]: unknown;
     }
 }

@@ -31,6 +31,16 @@
                                 Liên hệ tư vấn
                             </v-btn>
                             <v-btn
+                                v-if="primaryProduct"
+                                color="primary"
+                                variant="tonal"
+                                size="large"
+                                class="text-none px-6"
+                                @click="router.visit(primaryProduct.url)"
+                            >
+                                {{ primaryProduct.name }}
+                            </v-btn>
+                            <v-btn
                                 color="primary"
                                 variant="outlined"
                                 size="large"
@@ -65,16 +75,33 @@
                 </div>
 
                 <v-row>
-                    <v-col v-for="service in services" :key="service.title" cols="12" md="4">
-                        <v-card class="service-card h-100" elevation="0" rounded="xl">
+                    <v-col v-for="service in services" :key="service.title" cols="12" sm="6" lg="3">
+                        <v-card
+                            class="service-card h-100"
+                            :class="{ 'service-card--product': service.href }"
+                            elevation="0"
+                            rounded="xl"
+                            @click="service.href ? router.visit(service.href) : undefined"
+                        >
                             <v-card-text class="pa-6">
-                                <v-avatar color="primary" variant="tonal" size="56" rounded="lg" class="mb-4">
+                                <v-avatar
+                                    :color="service.href ? undefined : 'primary'"
+                                    :class="service.href ? 'service-avatar--teal' : undefined"
+                                    variant="tonal"
+                                    size="56"
+                                    rounded="lg"
+                                    class="mb-4"
+                                >
                                     <v-icon :icon="service.icon" size="28"></v-icon>
                                 </v-avatar>
                                 <h3 class="text-h6 font-weight-bold mb-3">{{ service.title }}</h3>
                                 <p class="text-body-2 text-medium-emphasis mb-0">
                                     {{ service.description }}
                                 </p>
+                                <span v-if="service.href" class="service-card__cta mt-4 d-inline-flex align-center">
+                                    Xem ERP SaaS
+                                    <v-icon size="18" class="ml-1">mdi-arrow-right</v-icon>
+                                </span>
                             </v-card-text>
                         </v-card>
                     </v-col>
@@ -104,7 +131,49 @@
             </v-container>
         </section>
 
-        <section id="about" class="section-block">
+        <section id="products" class="section-block">
+            <v-container class="py-12 py-md-16">
+                <v-row align="center">
+                    <v-col cols="12" md="6">
+                        <div class="section-label mb-2">Sản phẩm</div>
+                        <h2 class="section-title mb-4">
+                            {{ primaryProduct?.name ?? 'ERP SaaS' }}
+                        </h2>
+                        <p class="text-body-1 text-medium-emphasis mb-4">
+                            {{ primaryProduct?.tagline }}
+                        </p>
+                        <p class="text-body-1 text-medium-emphasis mb-6">
+                            Nhân viên làm việc bán hàng, mua hàng, tồn kho và nhân sự trên cổng web —
+                            mỗi doanh nghiệp có domain riêng, phân quyền theo module, không cần vào
+                            backend để thao tác hàng ngày.
+                        </p>
+                        <v-btn
+                            v-if="primaryProduct"
+                            class="text-none px-6 erp-product-btn"
+                            size="large"
+                            @click="router.visit(primaryProduct.url)"
+                        >
+                            Tìm hiểu ERP SaaS
+                            <v-icon end>mdi-arrow-right</v-icon>
+                        </v-btn>
+                    </v-col>
+
+                    <v-col cols="12" md="6">
+                        <ul class="product-highlights" aria-label="Điểm nổi bật ERP SaaS">
+                            <li v-for="item in productHighlights" :key="item.title">
+                                <v-icon :icon="item.icon" size="22" class="product-highlights__icon"></v-icon>
+                                <div>
+                                    <div class="font-weight-bold mb-1">{{ item.title }}</div>
+                                    <div class="text-body-2 text-medium-emphasis">{{ item.description }}</div>
+                                </div>
+                            </li>
+                        </ul>
+                    </v-col>
+                </v-row>
+            </v-container>
+        </section>
+
+        <section id="about" class="section-block section-block--alt">
             <v-container class="py-12 py-md-16">
                 <v-row align="center">
                     <v-col cols="12" md="5">
@@ -152,13 +221,37 @@
                                 </p>
                                 <div class="d-flex flex-wrap justify-center ga-3">
                                     <v-btn
+                                        v-if="contact"
                                         color="white"
                                         size="large"
-                                        class="text-none px-6 text-primary"
-                                        href="mailto:nguyenvannhan0810@gmail.com"
+                                        icon
+                                        class="text-primary"
+                                        :href="contact.emailHref"
+                                        :aria-label="`Email ${contact.email}`"
                                     >
-                                        <v-icon start>mdi-email-outline</v-icon>
-                                        nguyenvannhan0810@gmail.com
+                                        <v-icon>mdi-email-outline</v-icon>
+                                    </v-btn>
+                                    <v-btn
+                                        v-if="contact"
+                                        color="white"
+                                        size="large"
+                                        icon
+                                        class="text-primary"
+                                        :href="contact.phoneHref"
+                                        :aria-label="`Gọi ${contact.phone}`"
+                                    >
+                                        <v-icon>mdi-phone</v-icon>
+                                    </v-btn>
+                                    <v-btn
+                                        v-if="contact"
+                                        color="white"
+                                        size="large"
+                                        icon
+                                        class="text-primary"
+                                        :aria-label="`Zalo ${contact.phone}`"
+                                        @click="zaloOpen = true"
+                                    >
+                                        <ZaloIcon />
                                     </v-btn>
                                 </div>
                             </v-card-text>
@@ -167,36 +260,70 @@
                 </v-row>
             </v-container>
         </section>
+
+        <ZaloQrDialog
+            v-if="contact"
+            v-model="zaloOpen"
+            :qr-url="contact.zaloQrUrl"
+            :display-name="contact.zaloDisplayName"
+        />
     </div>
 </template>
 
 <script setup lang="ts">
 import LandingLayout from '@/Layouts/LandingLayout.vue';
+import ZaloIcon from '@/Components/ZaloIcon.vue';
+import ZaloQrDialog from '@/Components/ZaloQrDialog.vue';
+import { parseContactInfo } from '@/domain/marketing/contact-info';
+import { parseProductLinks } from '@/domain/marketing/product-link';
+import { router, usePage } from '@inertiajs/vue3';
+import { computed, ref } from 'vue';
 
 defineOptions({
     layout: LandingLayout,
 });
 
-const services = [
+interface PageProps extends Record<string, unknown> {
+    products?: unknown;
+    contact?: unknown;
+}
+
+const page = usePage<PageProps>();
+const products = computed(() => parseProductLinks(page.props.products));
+const primaryProduct = computed(() => products.value[0] ?? null);
+const contact = computed(() => parseContactInfo(page.props.contact));
+const zaloOpen = ref(false);
+
+const services = computed(() => [
     {
         icon: 'mdi-account-tie',
         title: 'Tư vấn Odoo ERP',
         description:
             'Phân tích quy trình nghiệp vụ, đề xuất kiến trúc hệ thống và lộ trình triển khai phù hợp với mục tiêu doanh nghiệp.',
+        href: null as string | null,
     },
     {
         icon: 'mdi-cog-sync',
         title: 'Triển khai & Tùy biến',
         description:
             'Cài đặt Odoo, cấu hình module, phát triển tính năng theo yêu cầu riêng và tích hợp với hệ thống hiện có.',
+        href: null as string | null,
     },
     {
         icon: 'mdi-database-cog',
         title: 'Xây dựng ERP theo nhu cầu',
         description:
             'Thiết kế giải pháp ERP end-to-end cho khách hàng — từ bán hàng, kho, sản xuất đến nhân sự và kế toán.',
+        href: null as string | null,
     },
-];
+    {
+        icon: 'mdi-cloud-outline',
+        title: 'ERP SaaS',
+        description:
+            'Cổng quản trị trên web cho từng doanh nghiệp: bán hàng, mua hàng, tồn kho, nhân sự — domain riêng, phân quyền theo module.',
+        href: primaryProduct.value?.url ?? '/erp-saas',
+    },
+]);
 
 const processSteps = [
     {
@@ -214,6 +341,24 @@ const processSteps = [
     {
         title: 'Đào tạo & Hỗ trợ',
         description: 'Bàn giao hệ thống, đào tạo người dùng và đồng hành vận hành ổn định.',
+    },
+];
+
+const productHighlights = [
+    {
+        icon: 'mdi-domain',
+        title: 'Domain riêng từng doanh nghiệp',
+        description: 'Truy cập và branding tách biệt theo tenant.',
+    },
+    {
+        icon: 'mdi-shield-account-outline',
+        title: 'Phân quyền theo module',
+        description: 'Chỉ mở đúng chức năng bán, mua, kho, nhân sự cần dùng.',
+    },
+    {
+        icon: 'mdi-monitor-dashboard',
+        title: 'Làm việc trên web',
+        description: 'Thao tác hàng ngày không cần vào backend ERP.',
     },
 ];
 
@@ -331,6 +476,59 @@ const highlights = [
     box-shadow: 0 12px 32px rgba(46, 125, 50, 0.12) !important;
 }
 
+.service-card--product {
+    border-color: rgba(13, 148, 136, 0.28);
+    cursor: pointer;
+    background: linear-gradient(165deg, #f0fdfa 0%, #ffffff 55%);
+}
+
+.service-card--product:hover {
+    box-shadow: 0 12px 32px rgba(13, 148, 136, 0.16) !important;
+}
+
+.service-avatar--teal {
+    background: rgba(13, 148, 136, 0.14) !important;
+    color: #0f766e !important;
+}
+
+.service-card__cta {
+    color: #0f766e;
+    font-weight: 700;
+    font-size: 0.875rem;
+}
+
+.product-highlights {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1rem;
+}
+
+.product-highlights li {
+    display: flex;
+    gap: 0.9rem;
+    align-items: flex-start;
+    padding: 1.15rem 1.2rem;
+    border-radius: 16px;
+    background: #f0fdfa;
+    border: 1px solid rgba(13, 148, 136, 0.18);
+}
+
+.product-highlights__icon {
+    color: #0f766e;
+    margin-top: 2px;
+}
+
+.erp-product-btn {
+    background: #0f766e !important;
+    color: #fff !important;
+}
+
+.erp-product-btn:hover {
+    background: #0d9488 !important;
+}
+
 .process-step {
     background: white;
     border: 1px solid rgba(46, 125, 50, 0.1);
@@ -373,5 +571,13 @@ const highlights = [
     max-width: 560px;
     margin-left: auto;
     margin-right: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero-visual__ring--outer,
+    .service-card {
+        animation: none;
+        transition: none;
+    }
 }
 </style>
