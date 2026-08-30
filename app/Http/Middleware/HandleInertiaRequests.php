@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Domain\Marketing\ContactInfo;
 use App\Domain\Marketing\ErpSaasProduct;
+use App\Domain\ErpSaasRegistration\ErpSaasRegisterModules;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -62,6 +63,13 @@ class HandleInertiaRequests extends Middleware
                 'zaloHref' => ContactInfo::ZALO_HREF,
                 'zaloQrUrl' => ContactInfo::ZALO_QR_PATH,
                 'zaloDisplayName' => ContactInfo::ZALO_DISPLAY_NAME,
+            ],
+            'erpSaasRegister' => [
+                'submitUrl' => route('erp-saas.register'),
+                'turnstileSiteKey' => config('services.turnstile.site_key'),
+                'turnstileBypass' => (bool) config('services.turnstile.bypass'),
+                'modules' => ErpSaasRegisterModules::catalog(),
+                'maxModules' => ErpSaasRegisterModules::MAX,
             ],
         ];
     }

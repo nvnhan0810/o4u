@@ -21,7 +21,7 @@
                         </p>
 
                         <div class="d-flex flex-wrap ga-3">
-                            <a class="btn btn--solid" href="#contact">Liên hệ tư vấn</a>
+                            <a class="btn btn--solid" href="#register">Đăng ký dùng thử</a>
                             <a class="btn btn--outline" href="#modules">Xem module</a>
                         </div>
                     </v-col>
@@ -112,6 +112,19 @@
             </v-container>
         </section>
 
+        <section id="register" class="section-block section-block--alt">
+            <v-container class="py-12 py-md-16">
+                <ErpSaasRegisterForm
+                    v-if="registerConfig"
+                    :submit-url="registerConfig.submitUrl"
+                    :turnstile-site-key="registerConfig.turnstileSiteKey"
+                    :turnstile-bypass="registerConfig.turnstileBypass"
+                    :modules="registerConfig.modules"
+                    :max-modules="registerConfig.maxModules"
+                />
+            </v-container>
+        </section>
+
         <section id="contact" class="cta-section">
             <v-container class="py-12 py-md-16">
                 <v-row justify="center">
@@ -172,6 +185,7 @@
 
 <script setup lang="ts">
 import LandingLayout from '@/Layouts/LandingLayout.vue';
+import ErpSaasRegisterForm from '@/Components/marketing/ErpSaasRegisterForm.vue';
 import ZaloIcon from '@/Components/ZaloIcon.vue';
 import ZaloQrDialog from '@/Components/ZaloQrDialog.vue';
 import { parseContactInfo } from '@/domain/marketing/contact-info';
@@ -182,12 +196,34 @@ defineOptions({
     layout: LandingLayout,
 });
 
+interface RegisterConfig {
+    submitUrl: string;
+    turnstileSiteKey: string | null;
+    turnstileBypass: boolean;
+    modules: Array<{ code: string; name: string }>;
+    maxModules: number;
+}
+
 interface PageProps extends Record<string, unknown> {
     contact?: unknown;
+    erpSaasRegister?: RegisterConfig;
 }
 
 const page = usePage<PageProps>();
 const contact = computed(() => parseContactInfo(page.props.contact));
+const registerConfig = computed(() => {
+    const raw = page.props.erpSaasRegister;
+    if (!raw || typeof raw.submitUrl !== 'string') {
+        return null;
+    }
+    return {
+        submitUrl: raw.submitUrl,
+        turnstileSiteKey: raw.turnstileSiteKey ?? null,
+        turnstileBypass: Boolean(raw.turnstileBypass),
+        modules: Array.isArray(raw.modules) ? raw.modules : [],
+        maxModules: typeof raw.maxModules === 'number' ? raw.maxModules : 2,
+    };
+});
 const zaloOpen = ref(false);
 
 const features = [
