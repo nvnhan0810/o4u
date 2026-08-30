@@ -41,4 +41,29 @@ return [
         'redirect' => env('GOOGLE_REDIRECT_URI'),
     ],
 
+    'odoo_tenant' => [
+        'base_url' => rtrim((string) env('ODOO_TENANT_BASE_URL', ''), '/'),
+        'registration_url' => env(
+            'ODOO_TENANT_REGISTRATION_URL',
+            rtrim((string) env('ODOO_TENANT_BASE_URL', ''), '/').'/api/tenant/public/register',
+        ),
+        'registration_key' => env('ODOO_TENANT_REGISTRATION_KEY'),
+        'daily_cap' => (int) env('ODOO_TENANT_REGISTRATION_DAILY_CAP', 50),
+    ],
+
+    'turnstile' => [
+        'site_key' => env('TURNSTILE_SITE_KEY'),
+        'secret_key' => env('TURNSTILE_SECRET_KEY'),
+        // Local/tests only — never enable in production.
+        'bypass' => (bool) env('TURNSTILE_BYPASS', false),
+    ],
+
+    'telegram' => [
+        'bot_token' => env('TELEGRAM_BOT_TOKEN'),
+        'registration_chat_id' => env(
+            'TELEGRAM_REGISTRATION_CHAT_ID',
+            env('TELEGRAM_CHAT_ID'),
+        ),
+    ],
+
 ];

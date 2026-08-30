@@ -6,11 +6,15 @@ use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\Web\AppUsageController;
 use App\Http\Controllers\Web\ClientController;
 use App\Http\Controllers\Web\ClientSystemController;
+use App\Http\Controllers\Web\ErpSaasRegisterController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
 Route::inertia('/', 'Welcome')->name('welcome');
 Route::inertia(ErpSaasProduct::PATH, 'ErpSaas')->name('erp-saas');
+Route::post(ErpSaasProduct::PATH.'/register', ErpSaasRegisterController::class)
+    ->middleware('throttle:erp-saas-register')
+    ->name('erp-saas.register');
 
 Route::middleware('guest')->group(function () {
     Route::inertia('/login', 'Auth/Login')->name('login');
